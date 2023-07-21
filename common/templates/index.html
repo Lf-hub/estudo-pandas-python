@@ -1,1 +1,28 @@
 {% extends "base.html" %}
+{% block content %}
+<div class="modal fade" id="modal1" tabindex="-1" role="dialog" aria-labelledby="ModalLabel1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="ModalLabel1">Importar arquivo</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Selecione um documento.
+                <form id="rotina" action="{% url 'common:import_file' %}" method="GET" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <input type="file" class="{% if field.errors %}is-invalid{% endif %}" id="documento_file" name="document_file">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Voltar</button>
+                        <button type="submit" name="rotina" class="btn btn-primary">Importar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
