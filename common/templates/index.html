@@ -11,10 +11,10 @@
             </div>
             <div class="modal-body">
                 Selecione um documento.
-                <form id="rotina" action="{% url 'common:import_file' %}" method="GET" enctype="multipart/form-data">
+                <form id="rotina" action="{% url 'common:import_file' %}" method="POST" enctype="multipart/form-data">
                     {% csrf_token %}
                     <div class="modal-body">
-                        <input type="file" class="{% if field.errors %}is-invalid{% endif %}" id="documento_file" name="document_file">
+                        <input type="file" id="file" name="file">
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Voltar</button>
