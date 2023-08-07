@@ -3,9 +3,8 @@ import pandas as pd
 from django.views import View
 from django.shortcuts import render
 
-from common.models import File
+from common.models import File, Lines
 from common.parameters import DEFAULT_LIST
-
 
 
 class CommonIndexView(View):
@@ -132,11 +131,49 @@ class ImportFile(View):
                 value['total'] = sum(value['values'])
             return dict_lines
 
+        def get_quadrant_upper_lower(row):
+            dict_quadrant = {
+                "upper":{"values":[],"total":0},
+                "lower":{"values":[],"total":0},
+            }
+            for value in row:
+                if value in [i for i in range(1, 51)]:
+                    dict_quadrant['upper']['values'].append(value)
+                elif value in [i for i in range(51, 101)]:
+                    dict_quadrant['lower']['values'].append(value)
+                            
+            for key, value in dict_quadrant.items():
+                value['total'] = sum(value['values'])
+            return dict_quadrant
+
+        # Pega arquivo
         file = self.request.FILES.get('file')
-        dataframe = pd.read_excel(file)
+        # Abre arquivo e cria DataFrame
+        dataframe = pd.read_excel(file, index_col=False)
+        # Defini primeira coluna como indice
+        dataframe.set_index('Concurso', inplace=True)
+        # Processa DataFrame
         dataframe[['pares', 'impares']] = dataframe.apply(get_pares_impares, axis=1, result_type='expand')
         dataframe['mestre'] = dataframe.apply(get_mestre, axis=1)
         dataframe['quadrantes'] = dataframe.apply(get_quadrant, axis=1)
         dataframe['lines'] = dataframe.apply(get_lines, axis=1)
         dataframe['coluns'] = dataframe.apply(get_columns, axis=1)
+        dataframe['quadrant_sup_inf'] = dataframe.apply(get_quadrant_upper_lower, axis=1)
+        dataframe['lista_numeros'] = dataframe.apply(lambda row: row['Bola1':'Bola20'].tolist(), axis=1)
+        
+        for index, row in dataframe.iterrows():
+            data_content = {
+                "numeros": row['lista_numeros'],
+                "pares": row['pares'],
+                "impares": row['impares'],
+                "mestre": row['mestre'],
+                "quadrantes": row['quadrantes'],
+                "linhas": row['lines'],
+                "colunas": row['coluns'],
+                "quadrant_sup_inf": row['quadrant_sup_inf']
+            }
+            data = {"contest":index,"content_json":data_content}
+            # Salva linhas
+            Lines.objects.create(**data)
+        
         return render(request, 'index.html')
