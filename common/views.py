@@ -1,29 +1,29 @@
 import pandas as pd
 
-from django.views import View
+from django.views.generic import View, ListView
 from django.shortcuts import render
 
 from common.models import File, Lines
 from common.parameters import DEFAULT_LIST
 
 
-class CommonIndexView(View):
-    def get(self, request, *args, **kwargs):
-        # Implemente a lógica para a resposta do método GET
-        return render(request, 'index.html')
+class CommonIndexView(ListView):
+    model = Lines
+    template_name = 'index.html'
+
 
 class ImportFile(View):
     model = File
     
     def post(self, request):
         def get_pares_impares(row):
-            pares = sum(1 for num in row if num % 2 == 0)
-            impares = len(row) - pares
+            pares = sum(1 for num in row['Bola1':'Bola20'] if num % 2 == 0)
+            impares = len(row['Bola1':'Bola20']) - pares
             return pares, impares
         
         def get_mestre(row):
             values = []
-            for value in row:
+            for value in row['Bola1':'Bola20']:
                 if value in DEFAULT_LIST.get('mestres'):
                     values.append(value)
             data = {
@@ -39,7 +39,7 @@ class ImportFile(View):
                 "quadrant3":{"values":[],"total":0},
                 "quadrant4":{"values":[],"total":0},
             }
-            for value in row:
+            for value in row['Bola1':'Bola20']:
                 if value in DEFAULT_LIST.get('first_quadrant'):
                     dict_quadrant['quadrant1']['values'].append(value)
                 elif value in DEFAULT_LIST.get('second_quadrant'):
@@ -66,7 +66,7 @@ class ImportFile(View):
                 "colum9":{"values":[],"total":0},
                 "colum10":{"values":[],"total":0},
             }
-            for value in row:
+            for value in row['Bola1':'Bola20']:
                 if value in DEFAULT_LIST.get('first_colum'):
                     dict_columns['colum1']['values'].append(value)
                 elif value in DEFAULT_LIST.get('second_colum'):
@@ -105,7 +105,7 @@ class ImportFile(View):
                 "line9":{"values":[],"total":0},
                 "line10":{"values":[],"total":0},
             }
-            for value in row:
+            for value in row['Bola1':'Bola20']:
                 if value in [i for i in range(1, 11)]:
                     dict_lines['line1']['values'].append(value)
                 elif value in [i for i in range(11, 21)]:
@@ -136,7 +136,7 @@ class ImportFile(View):
                 "upper":{"values":[],"total":0},
                 "lower":{"values":[],"total":0},
             }
-            for value in row:
+            for value in row['Bola1':'Bola20']:
                 if value in [i for i in range(1, 51)]:
                     dict_quadrant['upper']['values'].append(value)
                 elif value in [i for i in range(51, 101)]:
