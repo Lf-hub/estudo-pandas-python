@@ -15,3 +15,8 @@ class Lines(models.Model):
 
     def __str__(self):
         return f'{self.contest}'
+
+class Summary(models.Model):
+    content_json = models.JSONField(verbose_name='Conteúdo')
+    class Meta:
+        verbose_name = "Sumario"
