@@ -31,7 +31,7 @@
                 <div class="sidebar-brand-icon rotate-n-15">
                     <i class="fas fa-laugh-wink"></i>
                 </div>
-                <div class="sidebar-brand-text mx-3">Loteria</div>
+                <a href="{% url 'common:index' %}">Loteria</a>
             </a>
             {% block nav %}
             {% endblock %}         
@@ -54,6 +54,7 @@
                     </form>
                 </nav>
                 <a type="submit" href="{% url 'common:summary' %}" class="btn btn-primary">Sumarizar</a>
+                <a type="submit" href="{% url 'common:playgame' %}" class="btn btn-primary">Fazer Jogo</a>
                 <!-- End of Topbar -->
 
                 <!-- Begin Page Content -->

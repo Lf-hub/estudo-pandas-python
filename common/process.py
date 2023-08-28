@@ -134,6 +134,16 @@ class TreatLines:
         for key, value in dict_quadrant.items():
             value['total'] = sum(value['values'])
         return dict_quadrant
+    
+    @staticmethod
+    def have_same_digits(num1, num2):
+        # Convertendo os números em strings e ordenando seus dígitos
+        str_num1 = ''.join(sorted(str(num1)))
+        str_num2 = ''.join(sorted(str(num2)))
+    
+        # Comparando os resultados ordenados
+        return str_num1 == str_num2
+
 
 class ProcessLine(TreatLines):
     def execute(file):
@@ -150,7 +160,8 @@ class ProcessLine(TreatLines):
         dataframe['coluns'] = dataframe.apply(process.get_columns, axis=1)
         dataframe['quadrant_sup_inf'] = dataframe.apply(process.get_quadrant_upper_lower, axis=1)
         dataframe['lista_numeros'] = dataframe.apply(lambda row: row['Bola1':'Bola20'].tolist(), axis=1)
-        
+        dataframe['media_total_por_jogo'] = dataframe.apply(lambda row: sum(row['Bola1':'Bola20']), axis=1)
+
         for index, row in dataframe.iterrows():
             data_content = {
                 "numeros": row['lista_numeros'],
@@ -162,6 +173,12 @@ class ProcessLine(TreatLines):
                 "colunas": row['coluns'],
                 "quadrant_sup_inf": row['quadrant_sup_inf']
             }
+            list_idem = []
+            for i in range(len(row['lista_numeros'])):
+                for j in range(i + 1, len(row['lista_numeros'])):
+                    if process.have_same_digits(row[i], row[j]):
+                        list_idem.append([row[i],row[j]])
+            data_content.update({'idem':list_idem})
             data = {"contest":index,"content_json":data_content}
             # Salva linhas
             Lines.objects.create(**data)
