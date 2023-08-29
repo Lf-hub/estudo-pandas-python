@@ -20,3 +20,9 @@ class Summary(models.Model):
     content_json = models.JSONField(verbose_name='Conteúdo')
     class Meta:
         verbose_name = "Sumario"
+
+class Games(models.Model):
+    date = models.DateField(auto_now_add=True, verbose_name='data')
+    content_json = models.JSONField(verbose_name='Numeros')
+    class Meta:
+        verbose_name = "Jogos"
