@@ -1,5 +1,5 @@
 from django.urls import path
-from common.views import CommonIndexView, ImportFile, SummaryView, SummaryDetail, PlaygameView
+from common.views import CommonIndexView, ImportFile, SummaryView, SummaryDetail, PlaygameView, GetGameView
 
 app_name = 'common'
 
@@ -10,4 +10,5 @@ urlpatterns = [
     path('summary/',SummaryView.as_view(), name='summary'),
     path('detail/',SummaryDetail.as_view(), name='summary_detail'),
     path('playgame/',PlaygameView.as_view(), name='playgame'),
+    path('getgame/<int:pk>/',GetGameView.as_view(), name='getgame'),
 ]

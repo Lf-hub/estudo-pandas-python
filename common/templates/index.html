@@ -5,28 +5,20 @@
 {% block content-table %}
 <thead>
     <tr>
-        <th>Concurso</th>
-        <th>Pares</th>
-        <th>Impares</th>
-        <th>Mestre</th>
-        <th>Quadrante 1</th>
-        <th>Quadrante 2</th>
-        <th>Quadrante 3</th>
-        <th>Quadrante 4</th>
+        <th>Jogo</th>
+        <th>Numeros</th>
     </tr>
 </thead>
 <tbody>
     {% for line in object_list %}
-        <tr>
-            <td>{{line}}</td>
-            <td>{{line.content_json.pares}}</td>
-            <td>{{line.content_json.impares}}</td>
-            <td>{{line.content_json.mestre.total_mestre}}</td>
-            <td>{{line.content_json.quadrantes.quadrant1.total}}</td>
-            <td>{{line.content_json.quadrantes.quadrant2.total}}</td>
-            <td>{{line.content_json.quadrantes.quadrant3.total}}</td>
-            <td>{{line.content_json.quadrantes.quadrant4.total}}</td>
-        </tr>
+        <form action="{% url 'common:getgame' line.id %}" method="get">
+            <tr>
+                <td> <input type="checkbox" value="{{line.id}}"></td>
+                <td>{{line.id}}</td>
+                <td>{{line.content_json.jogo}}</td>
+                <td><button type="submit" class="btn btn-primary">Montar Jogo</button></td>
+            </tr>
+        </form> 
     {% endfor %}
 </tbody>
 {% endblock content-table %}

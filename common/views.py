@@ -3,7 +3,7 @@ from django.views.generic import View, ListView
 from django.http.response import HttpResponseRedirect
 from django.urls import reverse_lazy
 import pandas as pd
-from common.models import File, Lines, Summary
+from common.models import File, Lines, Summary, Games
 from common.process import ProcessLine
 from common.parameters import DEFAULT_LIST
 from common.processes_game import PlayGame
@@ -11,7 +11,7 @@ import itertools
 import random
 
 class CommonIndexView(ListView):
-    model = Lines
+    model = Games
     template_name = "index.html"
 
 
@@ -30,6 +30,18 @@ class SummaryDetail(ListView):
     model = Summary
     template_name = "summary_index.html"
 
+class GetGameView(View):
+    model = Games
+
+    def get(self, request, *args, **kwargs):
+        play = self.model.objects.get(id=kwargs.get('pk'))
+        numbers = play.content_json['jogo']
+        quantidade_adicionar = 50
+        numeros_adicionais = random.sample(range(1, 101), quantidade_adicionar)
+        numbers.extend(numeros_adicionais)
+        play.content_json['jogo'] = numbers
+        play.save()
+        return HttpResponseRedirect(reverse_lazy("common:index"), "Processado")
 
 class PlaygameView(View):
     model = Summary
@@ -49,8 +61,11 @@ class PlaygameView(View):
         
         # Criar o DataFrame
         df = pd.DataFrame([df_data])
-        PlayGame(df).main()
-        
+        status = PlayGame(df).main()
+        if status:
+            return HttpResponseRedirect(reverse_lazy("common:index"), "Processado")
+        return HttpResponseRedirect(reverse_lazy("common:index"))
+
         # combined_results_quad_sup = []
         # for tuple1, tuple2 in zip(sorteado_first_quad, sorteado_second_quad):
         #     list_c = list(tuple1) + list(tuple2)
@@ -68,7 +83,7 @@ class PlaygameView(View):
         #     list_cc = list(t5) + list(t6)
         #     if sum(list_cc)< df.at[0, 'media_total_por_jogo']:
         #         combineds.append(list_cc)
-
+    
 
 class SummaryView(View):
     model = Lines

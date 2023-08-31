@@ -2,7 +2,7 @@ import random
 import pandas as pd
 
 from common.parameters import DEFAULT_LIST
-from common.models import Lines, Games
+from common.models import Lines, Games, Summary
 
 
 class PlayGame:
@@ -39,14 +39,17 @@ class PlayGame:
         self.line9_len = df.at[0,'l9_media_linha9']
         self.line10_len = df.at[0,'l10_media_linha10']
 
-    def main(self):
-        last_game = Lines.objects.all().last().content_json.get('numeros')
-        mestre = DEFAULT_LIST.get('mestres')
-        remove_list = [last_game, mestre]
-        numeros = list(range(1, 101))
-        for lista in remove_list:
-            list_numbers = [numero for numero in numeros if numero not in lista]
-        
+    def main(self, param=False):
+        if not param:
+            last_game = Lines.objects.all().last().content_json.get('numeros')
+            mestre = DEFAULT_LIST.get('mestres')
+            remove_list = [last_game, mestre]
+            numeros = list(range(1, 101))
+            for lista in remove_list:
+                list_numbers = [numero for numero in numeros if numero not in lista]
+        else:
+            list_numbers = param
+
         while self.total_numbers > 0:
             status_step1 = False
             status_quadrant = False
@@ -67,10 +70,8 @@ class PlayGame:
             if status_line:
                 self.sorteados.append(number)
                 self.total_numbers -= 1
-                
         else:
-            data = {"jogo":self.sorteados}
-            Games.objects.create(content_json=data)
+            TreatGame(self.sorteados).main()         
 
     def get_par_or_impar(self, number):
         status = False
@@ -291,3 +292,44 @@ class PlayGame:
                 self.line10_len -= 1
                 return True    
         return False
+
+class TreatGame:
+    def __init__(self, numbers):
+        self.list_number = numbers
+
+    def main(self):
+        self.get_doble()
+    
+    @staticmethod
+    def tem_mesmos_digitos(num1, num2):
+        str_num1 = str(num1)
+        str_num2 = str(num2)
+        sorted_str_num1 = ''.join(sorted(str_num1))
+        sorted_str_num2 = ''.join(sorted(str_num2))
+        return sorted_str_num1 == sorted_str_num2
+
+    def get_doble(self):
+        list_boble = []
+        for i in range(len(self.list_number)):
+            for j in range(i + 1, len(self.list_number)):
+                if self.tem_mesmos_digitos(self.list_number[i], self.list_number[j]):
+                    list_boble.append((self.list_number[i], self.list_number[j]))
+        
+        if list_boble:
+            for n in list_boble:
+                t = next(filter(None, n))
+                while t in self.list_number: self.list_number.remove(t)
+        if len(self.list_number)<20:
+            mestre = random.sample(DEFAULT_LIST.get('mestres'),2) 
+            self.list_number.extend([num for num in mestre if num not in self.list_number])
+            game = Lines.objects.all().last().content_json.get('numeros')
+            last_g = random.sample(game, 2)
+            self.list_number.extend([num for num in last_g if num not in self.list_number])
+        if len(self.list_number)>=20: 
+            data = {"jogo":self.list_number}
+            Games.objects.create(content_json=data)
+            return True
+        else:
+            return False
+        return False
+        
